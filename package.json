@@ -1,0 +1,25 @@
+{
+  "name": "code-spy",
+  "version": "1.0.0",
+  "description": "Insert a single test case in the form of annotations, and ultimately generate a test report!",
+  "main": "./sc/index.js",
+  "devDependencies": {
+    "copy-dir": "^1.3.0"
+  },
+  "scripts": {
+    "dev": "node ./playground/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhuqingyv/code-spy.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zhuqingyv/code-spy/issues"
+  },
+  "homepage": "https://github.com/zhuqingyv/code-spy#readme",
+  "dependencies": {
+    "rd": "^2.0.1"
+  }
+}
