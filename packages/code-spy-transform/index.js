@@ -1,6 +1,6 @@
-const FileSystem = require('./FileSystem/index.js');
-const Comment = require('./Comment/index.js');
-const { splitByComments } = require('./CodeEditor/index');
+const FileSystem = require('./src/FileSystem/index.js');
+const Comment = require('./src/Comment/index.js');
+const { splitByComments } = require('./src/CodeEditor/index');
 const babelParser = require('@babel/parser');
 
 const defaultConfig = (options = {}) => {
@@ -19,7 +19,7 @@ const defaultConfig = (options = {}) => {
   };
 };
 
-class CodeSpy {
+class CodeSpyTransform {
   fileSystem = null;
 
   /**
@@ -97,6 +97,6 @@ class CodeSpy {
 };
 
 module.exports = {
-  CodeSpy,
+  CodeSpyTransform,
   defaultConfig
 };
