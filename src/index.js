@@ -1,4 +1,7 @@
 const FileSystem = require('./FileSystem/index.js');
+const Comment = require('./Comment/index.js');
+const { splitByComments } = require('./CodeEditor/index');
+const babelParser = require('@babel/parser');
 
 const defaultConfig = (options = {}) => {
   const _default = {
@@ -40,18 +43,46 @@ class CodeSpy {
   };
 
   setSpy = (fileCode, path) => {
-    // const commentReg = /(?:^|\n|\r)\s*\/\*[\s\S]*?\*\/\s*(?:\r|\n|$)/g;
-    // const comments = commentReg.exec(fileCode) || [];
-    // const { length } = comments;
+    const { comments } = babelParser.parse(fileCode);
+    if (comments?.length) {
+      debugger;
+      // 代码分割
+      const list = splitByComments({ comments, code: fileCode });
+      // 注释重新
+      const result = list.map((comment) => {
+        // 普通代码
+        if (typeof comment === 'string') return comment;
+        // 这里只处理块级注释
+        if (comment?.type === 'CommentBlock') {
+          const commentSetter = new Comment({
+            codeValue: comment.value,
+            path
+          });
 
-    // for (let i = 0;i<length;i++) {
-    //   const comment = comments[i];
-    // };
-    // debugger;
-    let commentReg = /\/\*\*[^.|.]*?\*\//g;
-    const comments = fileCode.match(commentReg) || [];
-    debugger;
-  }
+          const scriptFilter = (code, options) => {
+            // TODO: 分行处理
+            const isSpyMethod = code.match(/spy(\.)(\w)+/);
+            if (isSpyMethod) {
+              const [method] = isSpyMethod;
+              const { name } = options;
+              const restString = code.slice(method.length);
+              return `${method}('${name}')${restString}`;
+            };
+            return code;
+          };
+
+          const data = commentSetter.setCode({ scriptFilter });
+          // Will run scriptFilter!
+          const code = data.getScripts();
+          
+          if (code?.length) return code.join('\n');
+          return '';
+        };
+        return fileCode.slice(comment.start, comment.end);
+      });
+      return result.join('');
+    };
+  };
 
 };
 

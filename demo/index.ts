@@ -1,19 +1,25 @@
 const a = () => {
   /**
-   * @xhs spy
-   * @type test
-   * @name base render
-   * @example spy('spy-name', () => {
-   *   return true;
-   * })
+   * @spy
+   * @name 测试
+   * @spy.test(() => {});
   */
+};
 
+const b = () => {
   /**
-   * @xhs spy
-   * @type test
-   * @name base render2
-   * @example spy('spy-name2', () => {
-   *   return true;
-   * })
+   * @spy
+   * @name 测试dispatch
+   * @spy.dispatch('我已经发送!');
+  */
+};
+
+const c = () => {
+  /**
+   * @spy
+   * @name 独立的
+   * @spy.waitingFor(() => {
+   * 
+   * });
   */
 };
