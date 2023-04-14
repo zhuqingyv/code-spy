@@ -1,3 +1,7 @@
+/**
+ * @description 复制文件 & 转换注释=>spy代码
+*/
+
 const FileSystem = require('./src/FileSystem/index.js');
 const Comment = require('./src/Comment/index.js');
 const { splitByComments } = require('./src/CodeEditor/index');

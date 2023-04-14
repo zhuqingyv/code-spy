@@ -7,7 +7,8 @@
     "copy-dir": "^1.3.0"
   },
   "scripts": {
-    "transform-demo": "node ./playground/code-spy-transform/index.js"
+    "transform-demo": "node ./playground/code-spy-transform/index.js",
+    "injector-demo": "node ./playground/code-spy-injector/index.js"
   },
   "repository": {
     "type": "git",
