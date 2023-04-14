@@ -4,15 +4,16 @@ class Comment {
    * @param { string } codeValue 代码序列化字符
    * @param { string } path 代码文件地址
   */
-  constructor({ codeValue, path }) {
+  constructor({ codeValue, path, scriptFilter }) {
     this.codeValue = codeValue;
     this.path = path;
+    this.scriptFilter = scriptFilter;
   };
 
   /**
    * @description 操作注释
   */
-  setCode = ({ codeValue, scriptFilter } = {}) => {
+  setCode = ({ codeValue, scriptFilter = this.scriptFilter } = {}) => {
     return this.getCommentData({
       codeValue: codeValue || this.codeValue,
       scriptFilter
@@ -72,11 +73,12 @@ class Comment {
         } else {
           result.push(currentCache.value.join('\n'));
         };
+        currentCache.value = [];
       };
     });
 
     if (currentCache.value.length) {
-      (currentCache.type === 'script' ? scripts : result).push(currentCache.value);
+      (currentCache.type === 'script' ? scripts : result).push(...currentCache.value);
       currentCache.value = [];
     };
 
@@ -88,10 +90,10 @@ class Comment {
 
   /**
    * @description 注释中脚本提取
-   * @param { string } scriptValue 脚本序列化字符
+   * @param { string[] } scriptValue 脚本序列化字符
    * @return { string } 返回纯净脚本
   */
-  getCommentScript = ({ scriptValue, scriptFilter, options } = {}) => {
+  getCommentScript = ({ scriptValue, scriptFilter = this.scriptFilter, options } = {}) => {
     const list = scriptValue instanceof Array ? scriptValue : [scriptValue];
     return list
     .map((code, i) => {
@@ -124,10 +126,12 @@ class Comment {
    *   scripts  // 脚本配置json结构
    * }
   */
-  getCommentData = ({ codeValue, scriptFilter } = {}) => {
+  getCommentData = ({ codeValue, scriptFilter = this.scriptFilter } = {}) => {
     const comment = codeValue || this.codeValue;
     // 判断是spy注释块
-    const isSpy = (line) => !!line.match(/(\@spy)/);
+    const isSpy = (line) => {
+      return !!line.match(/(\@spy)/);
+    };
 
     // 从注释中获取配置
     const checkOption = (optionValue) => {
@@ -142,12 +146,13 @@ class Comment {
 
     const { options, scripts } = this.splitCommentData({ comment });
     const [_spy, ...optionsLines] = options;
+
     if (isSpy(_spy)) {
       const commentData = {
         options: {},
         getScripts: () => {
-          debugger;
-          return commentData.scripts = scripts.map((scriptValue) => this.getCommentScript({ scriptValue, scriptFilter, options: commentData.options }));
+          const scripsString = scripts.map((scriptValue) => this.getCommentScript({ scriptValue, scriptFilter, options: commentData.options }));
+          return commentData.scripts = scripsString;
         }
       };
 

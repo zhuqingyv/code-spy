@@ -43,45 +43,55 @@ class CodeSpy {
   };
 
   setSpy = (fileCode, path) => {
-    const { comments } = babelParser.parse(fileCode);
+    const { comments } = babelParser.parse(fileCode, {
+      sourceType: 'module',
+      plugins: ['jsx']
+    });
     if (comments?.length) {
-      debugger;
-      // 代码分割
+      // 代码分割[code,comment,code,...]
       const list = splitByComments({ comments, code: fileCode });
-      // 注释重新
-      const result = list.map((comment) => {
-        // 普通代码
+      // 返回map对象处理
+      const newCode = list.map((comment) => {
+        // 普通代码直接返回数组
         if (typeof comment === 'string') return comment;
-        // 这里只处理块级注释
+        // 块级注释处理
         if (comment?.type === 'CommentBlock') {
           const commentSetter = new Comment({
             codeValue: comment.value,
-            path
+            path,
+            scriptFilter: (code, options) => {
+              const codeLines = code.split('\n');
+              const outputSingle = (value) => {
+                const isSpyMethod = value.match(/spy(\.)(\w)+/);
+                if (isSpyMethod) {
+                  const [method] = isSpyMethod;
+                  const { name } = options;
+                  const restString = value.slice(method.length);
+                  return `${method}('${name}')${restString}`;
+                };
+                const index = value.indexOf('*');
+                return value.slice(index + 1);
+              };
+
+              const string = codeLines.map((value)=> {
+                return  outputSingle(value);
+              }).join('\n');
+              return string; 
+            }
           });
-
-          const scriptFilter = (code, options) => {
-            // TODO: 分行处理
-            const isSpyMethod = code.match(/spy(\.)(\w)+/);
-            if (isSpyMethod) {
-              const [method] = isSpyMethod;
-              const { name } = options;
-              const restString = code.slice(method.length);
-              return `${method}('${name}')${restString}`;
-            };
-            return code;
-          };
-
-          const data = commentSetter.setCode({ scriptFilter });
+          const data = commentSetter.setCode();
+          if (!data) return fileCode.slice(comment.start, comment.end);
           // Will run scriptFilter!
-          const code = data.getScripts();
-          
-          if (code?.length) return code.join('\n');
-          return '';
+          const scripts = data.getScripts();
+          if (scripts?.length) return scripts.join('\n');
+          return fileCode.slice(comment.start, comment.end);
         };
         return fileCode.slice(comment.start, comment.end);
-      });
-      return result.join('');
+      }).join('');
+      return newCode;
     };
+
+    return fileCode;
   };
 
 };
