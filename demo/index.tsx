@@ -1,28 +1,21 @@
 import React, { useEffect } from 'react';
-import { View } from 'react-native';
 
-/**
- * @examples 测试
- * @param 明白
-*/
-// 单行注释
-const OrderDetail = () => {
+const App = () => {
+
   useEffect(() => {
+    console.log('App did mounted!');
     /**
      * @spy
-     * @name 间谍1
-     * @spy.test(() => {});
-    */
-    /**
-     * @spy
-     * @name 测试
-     * @spy.dispatch();
+     * @name testEffect
+     * @spy.test(({ pass, error }) => {
+     *  pass();
+     * });
     */
   }, []);
 
   return (
-    <View></View>
+    <div>Hello World!</div>
   );
 };
 
-export default OrderDetail;
+export default App;
