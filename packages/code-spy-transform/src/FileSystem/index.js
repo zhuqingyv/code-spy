@@ -42,7 +42,8 @@ class FileSystem {
     eachSync(dirPath, (f, s) => {
       if (!s.isDirectory() && hit(f)) {
         const value = callback(fs.readFileSync(f, { encoding: 'utf-8' }), f);
-        fs.writeFileSync(f, value);
+        // null 说明文件不需要重新修改
+        if (value !== null) fs.writeFileSync(f, value);
       };
     });
   };

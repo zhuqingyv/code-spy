@@ -43,61 +43,83 @@ class CodeSpyTransform {
 
   checkFiles = () => {
     const { rootDir } = this.options;
-    this.fileSystem.eachSync(rootDir, this.setSpy);
+    this.fileSystem.eachSync(rootDir, this.setComments);
   };
 
-  setSpy = (fileCode, path) => {
+  // 处理脚本
+  setComments = (fileCode, path) => {
     const { comments } = babelParser.parse(fileCode, {
       sourceType: 'module',
       plugins: ['jsx']
     });
-    if (comments?.length) {
-      // 代码分割[code,comment,code,...]
-      const list = splitByComments({ comments, code: fileCode });
-      // 返回map对象处理
-      const newCode = list.map((comment) => {
-        // 普通代码直接返回数组
-        if (typeof comment === 'string') return comment;
-        // 块级注释处理
-        if (comment?.type === 'CommentBlock') {
-          const commentSetter = new Comment({
-            codeValue: comment.value,
-            path,
-            scriptFilter: (code, options) => {
-              const codeLines = code.split('\n');
-              const outputSingle = (value) => {
-                const isSpyMethod = value.match(/spy(\.)(\w)+/);
-                if (isSpyMethod) {
-                  const [method] = isSpyMethod;
-                  const { name } = options;
-                  const restString = value.slice(method.length);
-                  return `${method}('${name}')${restString}`;
-                };
-                const index = value.indexOf('*');
-                return value.slice(index + 1);
-              };
 
-              const string = codeLines.map((value)=> {
-                return  outputSingle(value);
-              }).join('\n');
-              return string; 
-            }
-          });
-          const data = commentSetter.setCode();
-          if (!data) return fileCode.slice(comment.start, comment.end);
-          // Will run scriptFilter!
-          const scripts = data.getScripts();
-          if (scripts?.length) return scripts.join('\n');
-          return fileCode.slice(comment.start, comment.end);
-        };
-        return fileCode.slice(comment.start, comment.end);
-      }).join('');
-      return newCode;
-    };
+    // 没有注释直接返回
+    if (!comments?.length) return null;
 
-    return fileCode;
+    // 代码分割[code,comment,code,...]
+    const list = splitByComments({ comments, code: fileCode });
+
+    // 处理错误或者意外结果 直接返回不进行文件写入
+    if (!list?.length) return null;
+
+    // 返回map对象处理
+    const newCodeList = list.map((comment) => {
+      // 普通代码直接返回数组
+      if (typeof comment === 'string') return comment;
+
+      // 单行注释直出
+      if (comment?.type !== 'CommentBlock') return this.outputCommentCode({ fileCode, comment });
+
+      // 块级注释处理
+      if (comment?.type === 'CommentBlock') return this.setSpy({ fileCode, path, comment });
+    });
+
+    return newCodeList.join('');
   };
 
+  setSpy = ({ fileCode, path, comment }) => {
+    const commentSetter = new Comment({
+      codeValue: comment.value,
+      path,
+      scriptFilter: this.scriptFilter
+    });
+    const data = commentSetter.setCode();
+
+    // 普通块级注释
+    if (!data) return outputCommentCode({ fileCode, comment });
+    const scripts = data.getScripts();
+
+    // 没写脚本，也当做普通块级注释直出
+    if (!scripts?.length) return outputCommentCode({ fileCode, comment });
+
+    // @spy 脚本直出
+    if (scripts?.length) return scripts.join('\n');
+    
+  };
+
+  // 直出注释内容
+  outputCommentCode = ({ fileCode, comment }) => fileCode.slice(comment.start, comment.end);
+
+  // 脚本过滤器
+  scriptFilter = (code, options) => {
+    const codeLines = code.split('\n');
+    const outputSingle = (value) => {
+      const isSpyMethod = value.match(/spy(\.)(\w)+/);
+      if (isSpyMethod) {
+        const [method] = isSpyMethod;
+        const { name } = options;
+        const restString = value.slice(method.length);
+        return `${method}('${name}')${restString}`;
+      };
+      const index = value.indexOf('*');
+      return value.slice(index + 1);
+    };
+
+    const string = codeLines.map((value)=> {
+      return  outputSingle(value);
+    }).join('\n');
+    return string; 
+  }
 };
 
 module.exports = {
