@@ -9,3 +9,6 @@ const App = () => {
 
 const root = createRoot(document.getElementById('root') || document.body);
 root.render(<App />);
+
+
+// syp.test('xxx')(() => {})
