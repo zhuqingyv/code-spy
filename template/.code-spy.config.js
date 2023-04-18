@@ -12,9 +12,21 @@ module.exports = () => (defaultConfig({
     branch: '',
   },
   test: {
-    // 执行顺序
+    // 依次执行脚本
     list: [
-      path.resolve(__dirname, './example.test.js')
+      {
+        // 测试文件
+        path: path.resolve(__dirname, './example.test.js'),
+        // 脚本注入
+        injector: {
+          target: path.resolve(__dirname, './demo.js'),
+          position: {
+            line: 0,
+            column: 0
+          },
+          script: `import './example.test.js'`
+        }
+      }
     ],
     // 通用的测试行为
     common: {

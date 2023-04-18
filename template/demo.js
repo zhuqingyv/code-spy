@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
 
 const App = () => {
-  const [count, setState] = useState(1);
+  const [state, setState] = useState(count);
   /**
    * @spy
    * @name mockState
-   * @spy.mock(count, (mock) => setState(mock))
+   * @spy.mock(state, (mock) => setState(mock))
   */
   useEffect(() => {
     console.log('App did mounted!');
   }, []);
 
   return (
-    <div>Count is: {count}</div>
+    <div>Hello World!</div>
   );
 };
 

@@ -12,6 +12,9 @@ class Intelligencer {
   // 等待某一个提交
   waitForDispatch = ():void => {};
 
+  // 等待某一连串提交
+  waitForFlow = () => {};
+
   // 监听所有的行为
   watch = () => {};
 

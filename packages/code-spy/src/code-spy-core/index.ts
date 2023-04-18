@@ -1,7 +1,7 @@
 import Flow from 'flow-work';
-import Intelligencer from '../code-intelligencer';
+import TestInstance from './TestInstance';
 import Reporter from '../code-spy-reporter';
-import { CodeSpyCoreOptionsType, IntelligencerCreatorType } from '../types';
+import { CodeSpyCoreOptionsType } from '../types';
 
 export const defaultConfig = (options:CodeSpyCoreOptionsType = {}) => {
   const _default = {
@@ -13,9 +13,13 @@ export const defaultConfig = (options:CodeSpyCoreOptionsType = {}) => {
   }
 };
 
+/**
+ * @description 主要处理最基本的对象创建、以及对象获取，主要是工厂的角色
+*/
 class CodeSpyCore {
   flow!: Flow;
   reporter!: Reporter;
+  currentTest!: TestInstance;
   /** 配置项 */
   options: CodeSpyCoreOptionsType;
   /** 每一个线报的实例 */
@@ -46,14 +50,25 @@ class CodeSpyCore {
     next();
   };
 
-  create = ({ name, type }:IntelligencerCreatorType) => {
-    const intelligencer = new Intelligencer({ name, type });
-    const { waitForDispatch, watch } = intelligencer;
+  // 新增实例
+  test = (name: string) => {
+    const { currentTest, flow } = this;
+    // 创建一个测试用例
+    const testInstance = new TestInstance({ name, spy: this, flow });
+    if (currentTest) currentTest.next(testInstance);
+    return this.currentTest = testInstance;
+  };
 
-    if (this.intelligencerMap.get(name)) console.warn()
-    this.intelligencerMap.set(name, intelligencer);
+  dispatch = () => {};
 
-    return (callback: (param: any) => any) => callback(param);
+  watch = () => {};
+
+  waitForDispatch = () => {};
+
+  waitForDispatchByStrict = () => {};
+
+  start = (params: any) => {
+    this.flow.call(params, () => {});
   };
 
   get global() {
@@ -66,7 +81,8 @@ class CodeSpyCore {
     } else {
       console.log(`Cody Spy options is ${String( this.options)}!`)
     };
-  }
+  };
 };
 
 export default CodeSpyCore;
+// codeSpy.test

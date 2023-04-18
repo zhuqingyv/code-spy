@@ -1,5 +1,12 @@
 import { defineConfig } from 'vite';
+import path from 'path';
 
 export default () => {
-  return defineConfig({});
+  return defineConfig({
+    resolve: {
+      alias: {
+        'utils': path.resolve(__dirname, '../common/utils/index.ts')
+      }
+    }
+  });
 };

@@ -27,4 +27,11 @@ const spy = new CodeSpy({
   global: window
 });
 
-spy
+// 测试单例
+spy.test('xxx')(({}) => {});
+
+// 主动触发
+spy.dispatch('xxx')({});
+
+// 被动触发
+spy.dispatchFlow('xxx')(() => {});
