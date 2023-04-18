@@ -1,11 +1,10 @@
-export interface CodeSpyCoreOptionsType {
-  name?: string,
+import Flow from 'flow-work';
+
+export interface CodeSpyTestOptionsType {
+  name?: string;
   // 用于全局引入
   global?:any;
-};
-
-export interface CodeSpyOptionsType extends CodeSpyCoreOptionsType {
-  
+  flow?: Flow;
 };
 
 export enum IntelligencerType {

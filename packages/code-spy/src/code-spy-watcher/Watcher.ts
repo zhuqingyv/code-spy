@@ -4,13 +4,13 @@
 import { DispatchParams, InterceptorType, AwaitFilterType } from './type';
 
 class Watcher {
-  name:string;
+  name?:string;
   interceptor: InterceptorType;
   awaitList?: string[];
   awaitFilter?:AwaitFilterType;
 
-  constructor({ name, interceptor, awaitList, awaitFilter }: { name: string, interceptor: InterceptorType, awaitList: string[], awaitFilter: AwaitFilterType}) {
-    this.name = name;
+  constructor({ name, interceptor, awaitList, awaitFilter }: { name?: string, interceptor: InterceptorType, awaitList?: string[], awaitFilter?: AwaitFilterType}) {
+    this.name = name || 'watcher';
     // dispatch 以后直接触发的出口
     this.interceptor = interceptor;
     // 需要等待的列表

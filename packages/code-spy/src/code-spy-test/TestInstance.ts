@@ -1,6 +1,11 @@
-import Flow, { workFlow } from 'flow-work';
+import Flow from 'flow-work';
+import { timeoutHandle } from 'utils';
 import Mocker from './Mocker';
 import CodeSpyCore from './index';
+interface FlowType {
+  run: () => any;
+  tap: Flow["tap"];
+};
 
 class TestInstance {
   name!: string;
@@ -30,29 +35,49 @@ class TestInstance {
   };
 
   // 触发dispatch
-  dispatch = (name: string) => {
-    this.flow.run(`dispatch:${name}`, (_data, next, finishProxy) => {
+  dispatch = (name: string, { timeout = 5000 }: { timeout: number }) => {
+    this.flow.run(`dispatch:${name}`, (_data: any, next: (arg?:[]) => void, finishProxy: (arg?:[]) => void) => {
       try {
-        this.spy.dispatch(name, next);
-      } catch (error) {
+        const finishHandle = () => {
+          finishProxy();
+        };
+        const handle = timeoutHandle(next, timeout, finishHandle);
+        this.spy.dispatch(name, handle);
+      } catch (error:any) {
         finishProxy(error);
       };
     });
     return this;
   };
 
-  // 自定义监听所有的测试资源
-  watch = (intercept) => {
-    this.spy.watch(intercept, this);
+  // 注册一个监听器
+  watch = (intercept: (any?:[]) => any, { timeout = 5000 }: { timeout: number }) => {
+    this.flow.run('watch', (_data: any, next: (arg?:[]) => void, finishProxy: (arg?:[]) => void) => {
+      // 注册定时任务
+      const handleNext = timeoutHandle(next, timeout, finishProxy);
+      // 开始监听
+      this.spy.watch(async(...arg) => {
+        // 获取watch结果
+        const value = intercept(...arg);
+        if (value instanceof Promise) {
+          const boolean = await value;
+          if (boolean) return handleNext();
+          return finishProxy();
+        };
+
+        if (value) return handleNext();
+        return finishProxy();
+      });
+    });
     return this;
   };
 
-  waitForDispatch = (waitingList) => {
+  waitForDispatch = (waitingList: any) => {
     this.spy.waitForDispatch(waitingList, this);
     return this;
   };
 
-  waitForDispatchByStrict = (waitingList) => {
+  waitForDispatchByStrict = (waitingList: any) => {
     this.spy.waitForDispatchByStrict(waitingList, this);
   };
 

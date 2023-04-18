@@ -1,4 +1,4 @@
-import CodySpy from '../code-spy-core';
+import CodySpy from '../code-spy-test';
 import { ReporterNodeType, ReporterStatus } from '../types';
 
 class Reporter {

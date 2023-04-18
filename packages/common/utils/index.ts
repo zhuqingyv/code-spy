@@ -13,3 +13,13 @@ export const findIndex = (array: unknown[], callback: CallbackType) => {
 
   return -1;
 };
+
+export const timeoutHandle = (handle: (any?:[]) => any, timeout: number, outHandle: (any?:[]) => any) => {
+  const outTimer = setTimeout(() => {
+    outHandle();
+  }, timeout);
+  return (...arg:any[]) => {
+    clearTimeout(outTimer);
+    return handle(...arg);
+  };
+};

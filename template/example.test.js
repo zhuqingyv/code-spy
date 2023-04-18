@@ -7,13 +7,15 @@ spy
 .mock('Payment', () => ({}))
 .mock('Submit to Pay', () => ({}))
 // 触发一个dispatch，这里用模拟点击为例
-.dispatch('Click button')
+.dispatch('Click button', {
+  timeout: 1000
+})
 // 等待某些dispatch触发
 .waitForDispatch(['Payment popup fetch', 'Payment popup effect show'])
 // 如果测试顺利执行到底则该测试完成，中间如果执行过fail或者报错，都会失败
 
 
-// 无论上一个测试是否成功，都会执行以下测试
+// 如果上一个test失败了，就不会执行后面的了
 spy
 .test('Next test demo')
 

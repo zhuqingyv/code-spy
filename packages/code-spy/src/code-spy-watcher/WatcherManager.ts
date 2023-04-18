@@ -6,9 +6,9 @@ import { findIndex } from 'utils';
 import { AwaitFilterType, InterceptorType, DispatchType } from './type';
 
 interface AddParamsType {
-  name: string;
-  awaitList: string[];
-  awaitFilter: AwaitFilterType,
+  name?: string;
+  awaitList?: string[];
+  awaitFilter?: AwaitFilterType,
   interceptor: InterceptorType
 };
 
@@ -24,7 +24,7 @@ class WatcherManager {
 
   dispatch = (params: DispatchParamsType) => {
     const { watcherList } = this;
-    if (watcherList?.length)  watcherList.forEach((watcher) => watcher.dispatch(params));
+    if (watcherList?.length) watcherList.forEach((watcher) => watcher.dispatch(params));
   };
 
   add = (params:AddParamsType) => {
@@ -32,27 +32,27 @@ class WatcherManager {
     this.watcherList.push(watcher);
   };
 
-  remove = (watcher: Watcher | string):Watcher[] => {
+  remove = (watcher: Watcher | string | Function):Watcher[] => {
     // remove with watch name
     if (typeof watcher === 'string') {
       const index = findIndex(this.watcherList, (item) => item.name === watcher);
-      return this.watcherList.splice(index, 1);
+      if (index !== -1) return this.watcherList.splice(index, 1);
     };
 
     // remove with watcher instance
     if (watcher instanceof Watcher) {
       const index = findIndex(this.watcherList, (item) => item === watcher);
-      return this.watcherList.splice(index, 1);
+      if (index !== -1) return this.watcherList.splice(index, 1);
     };
+
+    // remove with watcher interceptor handle
+    if (watcher instanceof Function) {
+      const index = findIndex(this.watcherList, (item) => item.interceptor === watcher);
+      if (index !== -1) return this.watcherList.splice(index, 1);
+    };
+
     return [];
   };
 };
 
 export default WatcherManager;
-
-const manager = new WatcherManager();
-// manager.add({
-//   name: 'xxx',
-//   awaitList: [],
-//   awaitFilter: () => false
-// });
