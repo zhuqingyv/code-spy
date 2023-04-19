@@ -1,19 +1,15 @@
 import Flow from 'flow-work';
 import { timeoutHandle } from 'utils';
 import Mocker from './Mocker';
-import CodeSpyCore from './index';
-interface FlowType {
-  run: () => any;
-  tap: Flow["tap"];
-};
+import { AnyHandle, CodeSpyType } from 'types';
 
 class TestInstance {
   name!: string;
   mockMap = new Map();
-  spy: CodeSpyCore;
+  spy: CodeSpyType;
   flow;
 
-  constructor({name, spy, flow}: {name: string, spy: CodeSpyCore, flow: Flow}) {
+  constructor({name, spy, flow}: {name: string, spy: CodeSpyType, flow: Flow}) {
     this.name = name;
     this.flow = flow.tap(name);
     this.spy = spy;
@@ -35,17 +31,18 @@ class TestInstance {
   };
 
   // 触发dispatch
-  dispatch = (name: string, { timeout = 5000 }: { timeout: number }) => {
-    this.flow.run(`dispatch:${name}`, (_data: any, next: (arg?:[]) => void, finishProxy: (arg?:[]) => void) => {
-      try {
-        const finishHandle = () => {
-          finishProxy();
-        };
-        const handle = timeoutHandle(next, timeout, finishHandle);
-        this.spy.dispatch(name, handle);
-      } catch (error:any) {
-        finishProxy(error);
+  dispatch = (name: string, { data }: { data?:any } = {}) => {
+    this.flow.run(`dispatch:${name}`, (_data: any, next: AnyHandle, finishProxy: AnyHandle) => {
+      const { dispatchManager } = this.spy;
+      const dispatchInstance = dispatchManager.getDispatch(name);
+      if (dispatchInstance) {
+        dispatchInstance.run(data);
+        next();
+        return this;
       };
+
+      finishProxy();
+      return this;
     });
     return this;
   };

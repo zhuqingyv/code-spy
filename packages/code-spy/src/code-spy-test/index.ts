@@ -2,12 +2,11 @@ import Flow from 'flow-work';
 import TestInstance from './TestInstance';
 import LazyDispatchManager from './LazyDispatch';
 import { WatcherManager } from '../code-spy-watcher';
-import { CodeSpyTestOptionsType } from '../types';
-import { DispatchParams } from '../code-spy-watcher/type';
+import { CodeSpyTestOptionsType, CodeSpyType } from 'types';
 
-export const defaultConfig = (options:CodeSpyTestOptionsType = {}) => {
+export const defaultConfig = (options:CodeSpyTestOptionsType) => {
   const _default = {
-    global: window || globalThis || global || self || this
+    global: window || globalThis || global || self
   };
   return {
     ..._default,
@@ -31,7 +30,7 @@ class CodeSpyTest {
   /** 每一个线报的实例 */
   testMap = new Map();
 
-  constructor(options: CodeSpyTestOptionsType = {}) {
+  constructor(options: CodeSpyTestOptionsType) {
     this.options = defaultConfig(options);
     // 创建工作流
     this.flow = new Flow(this.options.name || 'render name');
@@ -41,11 +40,11 @@ class CodeSpyTest {
     this.watchManager = new WatcherManager();
   };
 
-  // 新增实例
+  // 新增单测实例
   test = (name: string) => {
     const { currentTest, flow } = this;
     // 创建一个测试用例
-    const testInstance = new TestInstance({ name, spy: this, flow });
+    const testInstance = new TestInstance({ name, spy: this.spy, flow });
     this.testMap.set(name, testInstance);
     if (currentTest) currentTest.next(testInstance);
     return this.currentTest = testInstance;
@@ -54,7 +53,10 @@ class CodeSpyTest {
   dispatch = (name, next) => {
     const { lazyDispatchManager } = this;
     const lazyDispatchInstance = lazyDispatchManager.getDispatch(name);
-    if (lazyDispatchInstance) next(lazyDispatchInstance);
+    if (lazyDispatchInstance) {
+      lazyDispatchInstance
+      next(lazyDispatchInstance)
+    };
   };
 
   watch = (interceptor: () => any) => {
@@ -72,9 +74,13 @@ class CodeSpyTest {
 
   commit = () => {};
 
-  start = (params: any) => {
+  start = (params?: any) => {
     if(this.flow) this.flow.call(params, () => {});
   };
+
+  get spy() {
+    return this.options?.spy;
+  }
 };
 
 export default CodeSpyTest;

@@ -17,7 +17,8 @@
     "noImplicitReturns": true,
     "skipLibCheck": true,
     "paths": {
-      "utils": ["../common/utils/index.ts"]
+      "utils": ["../common/utils/index.ts"],
+      "types": ["./src/types/index.ts"]
     }
   },
   "include": ["src"]

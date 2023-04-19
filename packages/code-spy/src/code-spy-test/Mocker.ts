@@ -9,7 +9,8 @@ class Mocker {
   // 执行mock脚本
   run = (data:any, callback: (params:any) => any) => {
     const value = this.getMock(data);
-    callback(value);
+    if (callback && callback instanceof Function) return callback(value);
+    return value;
   };
 };
 

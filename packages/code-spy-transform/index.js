@@ -105,11 +105,19 @@ class CodeSpyTransform {
     const codeLines = code.split('\n');
     const outputSingle = (value) => {
       const isSpyMethod = value.match(/spy(\.)(\w)+/);
+      const joinOptions = (_list = []) => {
+        const list = _list.filter((item) => item !== undefined);
+        return list.map((item) => {
+          const isNumber = !isNaN(Number(item));
+          return isNumber ? item : `'${item}'`;
+        }).join(',')
+      };
       if (isSpyMethod) {
         const [method] = isSpyMethod;
-        const { name } = options;
+        const { name, timeout } = options;
         const restString = value.slice(method.length);
-        return `${method}('${name}')${restString}`;
+        // return `${method}('${name}')${restString}`;
+        return `${method}(${joinOptions([name, timeout])})${restString}`;
       };
       const index = value.indexOf('*');
       return value.slice(index + 1);

@@ -1,10 +1,12 @@
-import Flow from 'flow-work';
-
+import CodeSpy from '../index';
+export type CodeSpyType = CodeSpy;
+// 任意函数
+export type AnyHandle = (params?:any[]) => any;
 export interface CodeSpyTestOptionsType {
   name?: string;
   // 用于全局引入
   global?:any;
-  flow?: Flow;
+  spy: CodeSpy;
 };
 
 export enum IntelligencerType {
