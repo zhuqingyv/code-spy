@@ -1,19 +1,16 @@
-import CodySpy from '../code-spy-test';
+import { DispatchParams } from './../code-spy-watcher/type';
+import { TestStatusEnum, DispatchByCommonType } from 'types';
 import { ReporterNodeType, ReporterStatus } from '../types';
 
 class Reporter {
   status:ReporterStatus = ReporterStatus.ACTIVE;
-  context!: CodySpy;
 
-  nodeList!: ReporterNodeType[];
+  nodeList: ReporterNodeType[] = [];
 
-  constructor({ context }: { context: CodySpy }) {
-    this.context = context;
-  };
-
-  push = (item: ReporterNodeType) => {
-    const { name, type, status, by } = item;
+  push = (item: DispatchParams | ReporterNodeType) => {
+    const { name, type, status = TestStatusEnum.PASS, by = DispatchByCommonType.SPY } = item;
     this.nodeList.push({ name, type, status, by });
+    console.log({ name, type, status, by });
   };
 
   output = (callback: (params:ReporterNodeType[]) => any) => {

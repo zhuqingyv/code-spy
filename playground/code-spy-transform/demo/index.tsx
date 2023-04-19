@@ -19,8 +19,14 @@ const App = () => {
   /**
    * @spy
    * @name mock场景
-   * @timeout 1000
    * @spy.mock({}, (mock) => mock);
+  */
+
+  /**
+   * @spy
+   * @name watchName
+   * @timeout 3000
+   * @spy.watch(() => {});
   */
 
   /**

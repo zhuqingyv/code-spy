@@ -1,4 +1,5 @@
-type DispatchHandleType = (params?:any[]) => any;
+import { AnyHandle } from 'types';
+type DispatchHandleType = AnyHandle;
 
 interface DispatchType {
   name: string;
@@ -7,16 +8,19 @@ interface DispatchType {
 
 class DispatchInstance {
   name:string;
-  dispatchHandle: DispatchHandleType
+  dispatchHandle: DispatchHandleType;
+
   constructor({name, dispatchHandle}: DispatchType) {
     this.name = name;
     this.dispatchHandle = dispatchHandle;
   };
 
-  run = (data:any) => {
+  run = (...arg:any[]) => {
     const { dispatchHandle } = this;
-    dispatchHandle(data)
+    dispatchHandle(...arg);
   };
+
+  injectWaitList = () => {};
 };
 
 class DispatchManager {

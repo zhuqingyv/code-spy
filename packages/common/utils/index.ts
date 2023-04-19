@@ -1,3 +1,4 @@
+import { AnyHandle } from 'types';
 type CallbackType = (data: any, index: number) => boolean | any;
 
 export const findIndex = (array: unknown[], callback: CallbackType) => {
@@ -14,12 +15,20 @@ export const findIndex = (array: unknown[], callback: CallbackType) => {
   return -1;
 };
 
-export const timeoutHandle = (handle: (any?:[]) => any, timeout: number, outHandle: (any?:[]) => any) => {
+export const timeoutHandle = (handle: AnyHandle, timeout: number, outHandle: AnyHandle = () => null, successHandle:AnyHandle = () => null) => {
   const outTimer = setTimeout(() => {
     outHandle();
   }, timeout);
   return (...arg:any[]) => {
     clearTimeout(outTimer);
+    successHandle(...arg);
     return handle(...arg);
   };
+};
+
+export const arrayToObjectMap = (array:string[]) => {
+  return array.reduce((obj, key) => {
+    obj.set(key, true);
+    return obj;
+  }, new Map());
 };

@@ -1,7 +1,7 @@
 import Flow from 'flow-work';
 import { timeoutHandle } from 'utils';
 import Mocker from './Mocker';
-import { AnyHandle, CodeSpyType } from 'types';
+import { AnyHandle, CodeSpyType, IntelligencerType, TestStatusEnum } from 'types';
 
 class TestInstance {
   name!: string;
@@ -31,16 +31,19 @@ class TestInstance {
   };
 
   // 触发dispatch
-  dispatch = (name: string, { data }: { data?:any } = {}) => {
+  dispatch = (name: string, ...arg:any[]) => {
     this.flow.run(`dispatch:${name}`, (_data: any, next: AnyHandle, finishProxy: AnyHandle) => {
       const { dispatchManager } = this.spy;
       const dispatchInstance = dispatchManager.getDispatch(name);
       if (dispatchInstance) {
-        dispatchInstance.run(data);
-        next();
+        dispatchInstance.run(...arg, next);
         return this;
       };
-
+      this.spy.watcherManager.dispatch({
+        name,
+        type: IntelligencerType.USE_DISPATCH,
+        status: TestStatusEnum.NOT_FOUND
+      });
       finishProxy();
       return this;
     });
@@ -69,13 +72,18 @@ class TestInstance {
     return this;
   };
 
-  waitForDispatch = (waitingList: any) => {
-    this.spy.waitForDispatch(waitingList, this);
+  waitDispatch = (waitingList: string[], timeout:number = 1000) => {
+    this.flow.run('waitDispatch', (_data: any, next: AnyHandle, finishProxy: AnyHandle) => {
+      this.spy.waitDispatch(this.name, timeout, next, finishProxy)(waitingList);
+    });
     return this;
   };
 
-  waitForDispatchByStrict = (waitingList: any) => {
-    this.spy.waitForDispatchByStrict(waitingList, this);
+  waitDispatchStrict = (waitingList: string[], timeout:number = 1000) => {
+    this.flow.run('waitDispatchStrict', (_data: any, next: AnyHandle, finishProxy: AnyHandle) => {
+      this.spy.waitDispatchStrict(this.name, timeout, next, finishProxy)(waitingList);
+    })
+    return this;
   };
 
   next = (testInstance: TestInstance) => {};

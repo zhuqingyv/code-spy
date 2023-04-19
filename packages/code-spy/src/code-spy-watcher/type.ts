@@ -1,4 +1,4 @@
-import { IntelligencerType } from '../types';
+import { IntelligencerType, TestStatusEnum, DispatchByCommonType } from 'types';
 
 export interface DispatchParams {
   // 触发对象名称
@@ -7,6 +7,8 @@ export interface DispatchParams {
   type: IntelligencerType;
   // 触发对象可以携带结果信息
   value?: any;
+  status?: TestStatusEnum;
+  by?:DispatchByCommonType;
 };
 
 export type InterceptorType = (params: DispatchParams) => any;

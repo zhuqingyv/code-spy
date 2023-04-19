@@ -1,6 +1,7 @@
 /**
  * 一个监听器
 */
+import { AnyHandle } from 'types';
 import { DispatchParams, InterceptorType, AwaitFilterType } from './type';
 
 class Watcher {
@@ -20,8 +21,11 @@ class Watcher {
   };
 
   // 被动触发入口
-  dispatch = (params: DispatchParams) => {
-    if (this.filter(params)) this.interceptor(params);
+  dispatch = (params: DispatchParams, callback?: AnyHandle) => {
+    if (this.filter(params)) {
+      this.interceptor(params);
+      if (callback && callback instanceof Function) callback(params)
+    };
   };
 
   // 触发出口过滤器

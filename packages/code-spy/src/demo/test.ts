@@ -1,10 +1,12 @@
 import { test as spy } from './init';
 
-spy.test('mock测试')
-.mock('mock', (count) => {
-  return count + 1;
-})
-.dispatch('点击dispatch', { data: { count: 100 } })
+spy
+.test('demo')
+.waitDispatchStrict(['App did mounted', 'Fetch Success!'], 3100)
+.dispatch('click')
 
+spy.start()
 
-spy.start();
+// test.dispatch(name) => spy.useDispatch(name)(() => {});
+// test.dispatch(name, ['xx', 'xxx'], 1000) => spy.useWaitDispatch(name)(() => {});
+// test.dispatch(name, ['xx', 'xxx'], 1000) => spy.useWaitDispatchStrict(name)(() => {});
